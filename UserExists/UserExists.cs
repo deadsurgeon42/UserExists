@@ -35,8 +35,7 @@ namespace UserExists
 
         public override void Initialize()
         {
-            Commands.ChatCommands.Add(new Command("userexists", UE, "userexists"));
-			Commands.ChatCommands.Add(new Command("userexists", UE, "ue"));
+            Commands.ChatCommands.Add(new Command("userexists", UE, "userexists", "ue"));
         }
 
         private void UE(CommandArgs args)
