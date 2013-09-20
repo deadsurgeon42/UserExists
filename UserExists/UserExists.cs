@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using TShockAPI;
 using Terraria;
 
@@ -30,14 +31,53 @@ namespace UserExists
         public UserExists(Main game)
             : base(game)
         {
-            Order = 2;
+            Order = -1;
         }
 
         public override void Initialize()
         {
             Commands.ChatCommands.Add(new Command("userexists", UE, "userexists", "ue"));
             Commands.ChatCommands.Add(new Command("checkbanned", IfBanned, "banned"));
+            if (!TShock.Config.AllowRegisterAnyUsername) { Hooks.ServerHooks.Chat += OnChat; }
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (!TShock.Config.AllowRegisterAnyUsername) { Hooks.ServerHooks.Chat -= OnChat; }
+            }
+            base.Dispose(disposing);
+        }
+
+        private void OnChat(messageBuffer msg, int who, string message, HandledEventArgs args)
+        {
+            if (args.Handled)
+            {
+                return;
+            }
+
+            TSPlayer player = TShock.Players[msg.whoAmI];
+
+            if (player == null)
+            {
+                args.Handled = true;
+                return;
+            }
+
+            if (message.StartsWith("/register") & !TShock.Config.AllowRegisterAnyUsername & !player.IsLoggedIn)
+            {
+                var user = TShock.Users.GetUserByName(player.Name);
+                if (user != null) 
+                {
+                    args.Handled = true;
+                    player.SendMessage("We're sorry, but this name is already taken.", Color.DeepPink);
+                    if (player.Group.HasPermission("selfname")) { player.SendMessage("Please use /selfname [newname] to change your name.", Color.DeepPink); }
+                }
+            }
+            return;
+        }
+
 
         private void UE(CommandArgs args)
         {
