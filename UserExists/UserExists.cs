@@ -2,15 +2,16 @@
 using System.ComponentModel;
 using TShockAPI;
 using Terraria;
+using TerrariaApi.Server;
 
 namespace UserExists
 {
-    [APIVersion(1, 12)]
+    [ApiVersion(1, 14)]
     public class UserExists : TerrariaPlugin
     {
         public override Version Version
         {
-            get { return new Version("1.0.0.1"); }
+            get { return new Version("1.0.0.2"); }
         }
 		
         public override string Name
@@ -31,33 +32,33 @@ namespace UserExists
         public UserExists(Main game)
             : base(game)
         {
-            Order = -1;
+            Order = 2;
         }
 
         public override void Initialize()
         {
             Commands.ChatCommands.Add(new Command("userexists", UE, "userexists", "ue"));
             Commands.ChatCommands.Add(new Command("checkbanned", IfBanned, "banned"));
-            if (!TShock.Config.AllowRegisterAnyUsername) { Hooks.ServerHooks.Chat += OnChat; }
+            if (!TShock.Config.AllowRegisterAnyUsername) { ServerApi.Hooks.ServerChat.Register(this, OnChat); }
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                if (!TShock.Config.AllowRegisterAnyUsername) { Hooks.ServerHooks.Chat -= OnChat; }
+                if (!TShock.Config.AllowRegisterAnyUsername) { ServerApi.Hooks.ServerChat.Deregister(this, OnChat); }
             }
             base.Dispose(disposing);
         }
 
-        private void OnChat(messageBuffer msg, int who, string message, HandledEventArgs args)
+        private void OnChat(ServerChatEventArgs args)
         {
             if (args.Handled)
             {
                 return;
             }
 
-            TSPlayer player = TShock.Players[msg.whoAmI];
+            TSPlayer player = TShock.Players[args.Who];
 
             if (player == null)
             {
@@ -65,7 +66,7 @@ namespace UserExists
                 return;
             }
 
-            if (message.StartsWith("/register") & !TShock.Config.AllowRegisterAnyUsername & !player.IsLoggedIn)
+            if (args.Text.StartsWith("/register") & !TShock.Config.AllowRegisterAnyUsername & !player.IsLoggedIn)
             {
                 var user = TShock.Users.GetUserByName(player.Name);
                 if (user != null) 
