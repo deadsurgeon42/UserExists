@@ -11,7 +11,7 @@ namespace UserExists
     {
         public override Version Version
         {
-            get { return new Version("1.0.0.2"); }
+            get { return new Version("1.1.0.0"); }
         }
 		
         public override string Name
@@ -39,7 +39,7 @@ namespace UserExists
         {
             Commands.ChatCommands.Add(new Command("userexists", UE, "userexists", "ue"));
             Commands.ChatCommands.Add(new Command("checkbanned", IfBanned, "banned"));
-            if (!TShock.Config.AllowRegisterAnyUsername) { ServerApi.Hooks.ServerChat.Register(this, OnChat); }
+            if (!TShock.Config.AllowRegisterAnyUsername) { ServerApi.Hooks.ServerChat.Register(this, OnChat, 2); }
         }
 
         protected override void Dispose(bool disposing)
@@ -111,7 +111,10 @@ namespace UserExists
                     var ban = TShock.Bans.GetBanByName(uname);
                     if (ban != null)
                     {
-                        args.Player.SendMessage(string.Format("{0} (IP: {1}) is banned for: {2}", uname, ban.IP, ban.Reason), Color.DeepPink);
+                        args.Player.SendMessage(string.Format("{0} (IP: {1}) is banned for: \"{2}\"", uname, ban.IP, ban.Reason), Color.DeepPink);
+                        var add = ".";
+                        if (!String.IsNullOrEmpty(ban.Expiration)) { add = " with expiration date: " + DateTime.Parse(ban.Expiration).ToUniversalTime(); }
+                        args.Player.SendMessage(string.Format("on {0} by user \"{1}\"{2}", DateTime.Parse(ban.Date).ToUniversalTime(), ban.BanningUser, add), Color.DeepPink);
                     }
                     else
                     {
