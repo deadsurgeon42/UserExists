@@ -91,8 +91,14 @@ namespace UserExists
 						{
 							List<string> KnownIps = JsonConvert.DeserializeObject<List<string>>(user.KnownIps);
                             string ip = KnownIps[KnownIps.Count - 1];
+							DateTime Registered = DateTime.Parse(user.Registered);
+							DateTime LastSeen = DateTime.Parse(user.LastAccessed);
+
 							args.Player.SendMessage(string.Format("{0}'s group is {1}.", uname, user.Group), Color.DeepPink);
 							args.Player.SendMessage(string.Format("{0}'s last known IP is {1}.", uname, ip), Color.DeepPink);
+
+							args.Player.SendMessage(string.Format("{0}'s register date is {1}.", uname, Registered.ToShortDateString()), Color.DeepPink);
+							args.Player.SendMessage(string.Format("{0} was last seen {1}.", uname, LastSeen.ToShortDateString(), LastSeen.ToShortTimeString()), Color.DeepPink);
 						}
                     }
                     else
