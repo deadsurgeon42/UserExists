@@ -7,7 +7,7 @@ using TerrariaApi.Server;
 
 namespace UserExists
 {
-	[ApiVersion(1, 17)]
+	[ApiVersion(1, 18)]
 	public class UserExists : TerrariaPlugin
 	{
 		public override Version Version
