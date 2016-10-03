@@ -7,7 +7,7 @@ using TerrariaApi.Server;
 
 namespace UserExists
 {
-	[ApiVersion(1, 18)]
+	[ApiVersion(1, 24)]
 	public class UserExists : TerrariaPlugin
 	{
 		public override Version Version
@@ -38,41 +38,14 @@ namespace UserExists
 
 		public override void Initialize()
 		{
-			Commands.ChatCommands.Add(new Command("userexists", UE, "userexists", "ue"));
-			Commands.ChatCommands.Add(new Command("checkbanned", IfBanned, "banned"));
-			if (!TShock.Config.AllowRegisterAnyUsername) ServerApi.Hooks.ServerChat.Register(this, OnChat, 2);
+			Commands.ChatCommands.Add(new Command("userexists.use", UE, "userexists", "ue"));
+			Commands.ChatCommands.Add(new Command("userexists.checkbanned", IfBanned, "banned"));
 		}
 
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing && !TShock.Config.AllowRegisterAnyUsername) ServerApi.Hooks.ServerChat.Deregister(this, OnChat);
 			base.Dispose(disposing);
 		}
-
-		private void OnChat(ServerChatEventArgs e)
-		{
-			if (e.Handled) return;
-
-			TSPlayer player = TShock.Players[e.Who];
-
-			if (player == null)
-			{
-				e.Handled = true;
-				return;
-			}
-
-			if (e.Text.StartsWith("/register") && !TShock.Config.AllowRegisterAnyUsername && !player.IsLoggedIn)
-			{
-				var user = TShock.Users.GetUserByName(player.Name);
-				if (user != null) 
-				{
-					e.Handled = true;
-					player.SendMessage("We're sorry, but this name is already taken.", Color.DeepPink);
-					if (player.Group.HasPermission("selfname")) player.SendMessage("Please use /selfname [newname] to change your name.", Color.DeepPink);
-				}
-			}
-		}
-
 
 		private void UE(CommandArgs args)
 		{
@@ -87,16 +60,13 @@ namespace UserExists
 					DateTime LastSeen = DateTime.Parse(user.LastAccessed);
 					args.Player.SendMessage(string.Format("User {0} exists.", uname), Color.DeepPink);
 					args.Player.SendMessage(string.Format("{0} was last seen {1}.", uname, LastSeen.ToShortDateString(), LastSeen.ToShortTimeString()), Color.DeepPink);
-					if (args.Player.Group.HasPermission("viewgroup"))
-					{
-						List<string> KnownIps = JsonConvert.DeserializeObject<List<string>>(user.KnownIps);
-						string ip = KnownIps[KnownIps.Count - 1];
-						DateTime Registered = DateTime.Parse(user.Registered);
+					List<string> KnownIps = JsonConvert.DeserializeObject<List<string>>(user.KnownIps);
+					string ip = KnownIps[KnownIps.Count - 1];
+					DateTime Registered = DateTime.Parse(user.Registered);
 
-						args.Player.SendMessage(string.Format("{0}'s group is {1}.", uname, user.Group), Color.DeepPink);
-						args.Player.SendMessage(string.Format("{0}'s last known IP is {1}.", uname, ip), Color.DeepPink);
-						args.Player.SendMessage(string.Format("{0}'s register date is {1}.", uname, Registered.ToShortDateString()), Color.DeepPink);
-					}
+					args.Player.SendMessage(string.Format("{0}'s group is {1}.", uname, user.Group), Color.DeepPink);
+					args.Player.SendMessage(string.Format("{0}'s last known IP is {1}.", uname, ip), Color.DeepPink);
+					args.Player.SendMessage(string.Format("{0}'s register date is {1}.", uname, Registered.ToShortDateString()), Color.DeepPink);
 				}
 				else
 					args.Player.SendMessage(string.Format("User {0} does not exist.", uname), Color.DeepPink);
