@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using TShockAPI;
 using TerrariaApi.Server;
 
 namespace UserExists
 {
-	[ApiVersion(1, 24)]
+	[ApiVersion(2, 0)]
 	public class UserExists : TerrariaPlugin
 	{
 		public override Version Version
